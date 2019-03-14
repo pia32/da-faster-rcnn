@@ -1,6 +1,7 @@
 PROJECT := caffe
 
 CONFIG_FILE := Makefile.config
+
 # Explicitly check for the config file, otherwise make -k will proceed anyway.
 ifeq ($(wildcard $(CONFIG_FILE)),)
 $(error $(CONFIG_FILE) not found. See $(CONFIG_FILE).example.)
@@ -178,7 +179,7 @@ ifneq ($(CPU_ONLY), 1)
 	LIBRARIES := cudart cublas curand
 endif
 
-LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_hl hdf5
+LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_hl hdf5 opencv_core opencv_highgui opencv_imgproc 
 
 # handle IO dependencies
 USE_LEVELDB ?= 1
@@ -390,14 +391,15 @@ LIBRARY_DIRS += $(LIB_BUILD_DIR)
 
 # Automatic dependency generation (nvcc is handled separately)
 CXXFLAGS += -MMD -MP
+CXXFLAGS += -std=c++11
 
 # Complete build flags.
 COMMON_FLAGS += $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir))
 CXXFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS)
-NVCCFLAGS += -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS)
+NVCCFLAGS += -ccbin=$(CXX) -Xcompiler -fPIC -std=c++11 $(COMMON_FLAGS)
 # mex may invoke an older gcc that is too liberal with -Wuninitalized
 MATLAB_CXXFLAGS := $(CXXFLAGS) -Wno-uninitialized
-LINKFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS)
+LINKFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS) -std=c++11
 
 USE_PKG_CONFIG ?= 0
 ifeq ($(USE_PKG_CONFIG), 1)
